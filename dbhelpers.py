@@ -1,6 +1,12 @@
 import dbcreds
 import mariadb
+import secrets
 from flask import jsonify
+
+def new_token():
+  token = secrets.token_hex(16)
+
+  return token
 
 def connect_db():
   try:
@@ -15,10 +21,13 @@ def connect_db():
 def execute_statement(cursor, statement, args = []):
   try:
     cursor.execute(statement, args)
+
     results = cursor.fetchall()
-    column_names = [desc[0] for desc in cursor.description]
+
+    column_names = [desc[0] for desc in cursor.description] 
     records = [dict(zip(column_names, row)) for row in results]
     return records
+
   except mariadb.ProgrammingError as error:
     print("PROGRAMMING ERROR:", error)
     raise error
