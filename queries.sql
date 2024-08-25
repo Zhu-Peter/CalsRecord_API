@@ -4,15 +4,17 @@ CREATE TABLE `users` (
   `email` varchar(100) NOT NULL,
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `password` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  CONSTRAINT users_unique UNIQUE KEY (email)
 )
 
 -- contains session keys for login
-create table session (
-    id int not null,
-    token varchar(255) not null,
-    foreign key (id) references users(id) on delete cascade
-);
+CREATE TABLE calsrecord.`session` (
+	id INT UNSIGNED NOT NULL,
+	token varchar(255) NOT NULL,
+	CONSTRAINT session_pk PRIMARY KEY (token),
+	CONSTRAINT session_users_FK FOREIGN KEY (id) REFERENCES calsrecord.users(id) ON DELETE CASCADE
+)
 
 -- stores session keys for login and returns the session key
 DELIMITER $$
