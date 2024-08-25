@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify, make_response
 from dbhelpers import run_statement, check_endpoint_info, new_token
 
-import mariadb
-import dbcreds
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
+
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 # Returns information about a single user, will error if the user_id does not exist.
 @app.get('/api/user')
