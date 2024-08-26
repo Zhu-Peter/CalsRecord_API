@@ -153,5 +153,43 @@ def user_logout():
         err["error"] = f"Error logging out user: {error}"
         return make_response(jsonify(err), 400)
 
+# get food and all related food by name
+app.get('/api/login')
+def get_food():
+    valid_check = check_endpoint_info(request.json,  ["name"])
+    if(type(valid_check) == str):
+        return valid_check
+    
+    name = '%' + request.json["name"] + '%'
+    try:
+        result = run_statement("CALL get_food(?)", [name])
+        if (result):
+            return make_response(result, 200)
+    except Exception as error:
+        err = {}
+        err["error"] = f"Error getting food from database: {error}"
+        return make_response(jsonify(err), 400)
+
+# add new food and returns id
+app.post('/api/login')
+def new_food():
+    valid_check = check_endpoint_info(request.json,  ["name", "cals", "weight", "weight_unit"])
+    if(type(valid_check) == str):
+        return valid_check
+    
+    name = request.json["name"]
+    cals = request.json["cals"]
+    weight = request.json["weight"]
+    weight_unit = request.json["weight_unit"]
+
+    try:
+        result = run_statement("CALL new_food(?,?,?,?)", [name, cals, weight, weight_unit])
+        if (result):
+            return make_response(result[0], 200)
+    except Exception as error:
+        err = {}
+        err["error"] = f"Error getting food from database: {error}"
+        return make_response(jsonify(err), 400)
+
 app.run(debug=True)
 
