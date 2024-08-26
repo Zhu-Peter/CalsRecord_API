@@ -11,11 +11,11 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 # Returns information about a single user, will error if the user_id does not exist.
 @app.get('/api/user')
 def get_user():
-    valid_check = check_endpoint_info(request.args, ["user_id"])
+    valid_check = check_endpoint_info(request.args, ["id"])
     if(type(valid_check) == str):
         return valid_check
     
-    id = request.args["user_id"]
+    id = request.args["id"]
     
     try:
         result = run_statement("CALL get_user(?)", [id])
@@ -28,7 +28,7 @@ def get_user():
         err["error"] = f"Error calling user: {error}"
         return make_response(jsonify(err), 400)
 
-# Creates a new user that can now use the system. Also returns a valid login token meaning the user is now logged in after sign up.  Will error if there is a duplicate username or password (the user already exists)
+# Creates a new user that can now use the system. Also returns a valid login token meaning the user is now logged in after sign up.  
 @app.post('/api/user')
 def create_user():
     valid_check = check_endpoint_info(request.json, 
@@ -78,7 +78,7 @@ def update_user():
     token = request.headers["token"]
 
     try:
-        run_statement("CALL update_user(?, ?, ?, ?, ?,)", (email, first_name, last_name, password, token))
+        run_statement("CALL update_user(?, ?, ?, ?, ?)", (email, first_name, last_name, password, token))
         return make_response('',201)
     except Exception as error:
         err = {}
@@ -90,6 +90,10 @@ def update_user():
 @app.delete('/api/user')
 def delete_user():
     valid_check = check_endpoint_info(request.headers,  ["token"])
+    if(type(valid_check) == str):
+        return valid_check
+    
+    valid_check = check_endpoint_info(request.json,  ["password"])
     if(type(valid_check) == str):
         return valid_check
     
