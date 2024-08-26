@@ -154,7 +154,7 @@ def user_logout():
         return make_response(jsonify(err), 400)
 
 # get food and all related food by name
-app.get('/api/login')
+app.get('/api/food')
 def get_food():
     valid_check = check_endpoint_info(request.json,  ["name"])
     if(type(valid_check) == str):
@@ -171,7 +171,7 @@ def get_food():
         return make_response(jsonify(err), 400)
 
 # add new food and returns id
-app.post('/api/login')
+app.post('/api/food')
 def new_food():
     valid_check = check_endpoint_info(request.json,  ["name", "cals", "weight", "weight_unit"])
     if(type(valid_check) == str):
