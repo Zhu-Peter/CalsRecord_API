@@ -39,7 +39,11 @@ CREATE TABLE `session` (
 LOCK TABLES `session` WRITE;
 /*!40000 ALTER TABLE `session` DISABLE KEYS */;
 INSERT INTO `session` VALUES
-(1,'1');
+(1,'183174d339c5fd7cdf16650a80073e5d'),
+(1,'6d3a3402a806a07887be5c67000315d9'),
+(1,'cb2eabac86fad45aeec131f8a4ab4e20'),
+(1,'fc2a868389873dcd96fdc29c1c56ea0c'),
+(5,'1726897ed1d9bd139cab4f31640f45a9');
 /*!40000 ALTER TABLE `session` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -58,7 +62,7 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_unique` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -68,7 +72,8 @@ CREATE TABLE `users` (
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` VALUES
-('john','smith','johnsmith@email.com',1,'123');
+('john','smith','johnsmith@email.com',1,'123'),
+('Jane4','Doe4','tes4t@mail.com',5,'1234');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -113,10 +118,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `create_user`(
     password_input varchar(255)
 )
 begin
-    insert into user (email, first_name, last_name, password) values
+    insert into users (email, first_name, last_name, password) values
         (email_input, first_name_input, last_name_input, password_input);
     commit;
-    select id from user where id = last_insert_id();
+    select id from users where id = last_insert_id();
 end ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -137,7 +142,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_user`(password_input varchar
 begin
     DECLARE token_id int;
     DECLARE check_pwd varchar(255);
-    select user_id into token_id from user_session where token = token_input;
+    select id into token_id from session where token = token_input;
 
     IF token_id IS NULL THEN
 
@@ -146,13 +151,13 @@ begin
         SELECT 'Invalid token' AS message;
 
     ELSE
-        SELECT password INTO check_pwd FROM user WHERE id = token_id;
+        SELECT password INTO check_pwd FROM users WHERE id = token_id;
 
         IF check_pwd!= password_input THEN
             ROLLBACK;
             SELECT 'Invalid password' AS message;
         ELSE
-            DELETE FROM user WHERE id = token_id;
+            DELETE FROM users WHERE id = token_id;
             COMMIT;
             SELECT 'Success' AS message;
         END IF;
@@ -220,7 +225,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `update_user`(
 )
 begin
     DECLARE token_id int;
-    select user_id into token_id from user_session where token = token_input;
+    select id into token_id from session where token = token_input;
 
     IF token_id IS NULL THEN
 
@@ -230,16 +235,16 @@ begin
 
     ELSE
         IF email_input IS NOT NULL THEN
-            update user set email = email_input where id = token_id;
+            update users set email = email_input where id = token_id;
         END IF;
         IF first_name_input IS NOT NULL THEN
-            update user set first_name = first_name_input where id = token_id;
+            update users set first_name = first_name_input where id = token_id;
         END IF;
         IF last_name_input IS NOT NULL THEN
-            update user set last_name = last_name_input where id = token_id;
+            update users set last_name = last_name_input where id = token_id;
         END IF;
         IF password_input IS NOT NULL THEN
-            update user set password = password_input where id = token_id;
+            update users set password = password_input where id = token_id;
         END IF;
         COMMIT;
         select 'Success' AS message;
@@ -262,7 +267,7 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `user_login`(email_input varchar(255), password_input varchar(255))
-select id from user where email = email_input and password = password_input ;;
+select id from users where email = email_input and password = password_input ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
@@ -278,4 +283,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2024-08-25 16:23:39
+-- Dump completed on 2024-08-26 12:57:36
