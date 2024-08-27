@@ -191,5 +191,39 @@ def new_food():
         err["error"] = f"Error getting food from database: {error}"
         return make_response(jsonify(err), 400)
 
+app.get('/api/food_meals')
+def get_meal():
+    valid_check = check_endpoint_info(request.json,  ["name"])
+    if(type(valid_check) == str):
+        return valid_check
+    
+    name = '%' + request.json["name"] + '%'
+    try:
+        result = run_statement("CALL get_meal(?)", [name])
+        if (result):
+            return make_response(result, 200)
+    except Exception as error:
+        err = {}
+        err["error"] = f"Error getting meal from database: {error}"
+        return make_response(jsonify(err), 400)
+    
+app.post('/api/food')
+def new_food():
+    valid_check = check_endpoint_info(request.json,  ["name", "food"])
+    if(type(valid_check) == str):
+        return valid_check
+    
+    name = request.json["name"]
+    food = request.json["food"]
+
+    try:
+        result = run_statement("CALL new_meal(?,?)", [name, food])
+        if (result):
+            return make_response(result[0], 200)
+    except Exception as error:
+        err = {}
+        err["error"] = f"Error getting food from database: {error}"
+        return make_response(jsonify(err), 400)
+
 app.run(debug=True)
 

@@ -46,6 +46,41 @@ INSERT INTO `foods` VALUES
 UNLOCK TABLES;
 
 --
+-- Table structure for table `meals`
+--
+
+DROP TABLE IF EXISTS `meals`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `meals` (
+  `user_id` int(10) unsigned NOT NULL,
+  `food_id` int(10) unsigned NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `amount` double NOT NULL DEFAULT 1,
+  KEY `meals_foods_FK` (`food_id`),
+  KEY `meals_users_FK` (`user_id`),
+  CONSTRAINT `meals_foods_FK` FOREIGN KEY (`food_id`) REFERENCES `foods` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `meals_users_FK` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `meals`
+--
+
+LOCK TABLES `meals` WRITE;
+/*!40000 ALTER TABLE `meals` DISABLE KEYS */;
+INSERT INTO `meals` VALUES
+(5,1,'five bananas',1),
+(5,1,'five bananas',1),
+(5,1,'five bananas',2),
+(5,1,'five bananas',3),
+(5,1,'five bananas',4),
+(5,1,'five bananas',5);
+/*!40000 ALTER TABLE `meals` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `session`
 --
 
@@ -197,6 +232,27 @@ DELIMITER ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `get_meal` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_meal`(name_input varchar(255), user_id_input int)
+begin
+    select foods.food_name, foods.cals, meals.amount from meals
+    inner join foods on foods.id = meals.food_id 
+    where meals.name = name_input and meals.user_id = user_id_input;
+end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `get_user` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -228,6 +284,37 @@ begin
     commit;
     select id from users where id = last_insert_id();
 end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `new_meal` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `new_meal`(user_id_input int, meal_name_input varchar(255), in food_id_array text, in amount_array text)
+begin
+	DECLARE i INT DEFAULT 0;
+    DECLARE n INT;
+    DECLARE food_element VARCHAR(255);
+   	DECLARE ammount_element VARCHAR(255);
+
+    SET n = JSON_LENGTH(food_id_array);
+
+    WHILE i < n DO
+        SET food_element = JSON_UNQUOTE(JSON_EXTRACT(food_id_array, CONCAT('$[', i, ']')));
+       	SET ammount_element = JSON_UNQUOTE(JSON_EXTRACT(amount_array, CONCAT('$[', i, ']')));
+        INSERT INTO meals (user_id, name, food_id, amount) VALUES (user_id_input, meal_name_input, food_element, ammount_element);
+        SET i = i + 1;
+    END WHILE;
+END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
@@ -352,4 +439,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2024-08-26 17:40:16
+-- Dump completed on 2024-08-26 18:13:25
