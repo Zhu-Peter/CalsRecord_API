@@ -191,7 +191,7 @@ def new_food():
         err["error"] = f"Error getting food from database: {error}"
         return make_response(jsonify(err), 400)
 
-app.get('/api/food_meals')
+app.get('/api/meals')
 def get_meal():
     valid_check = check_endpoint_info(request.json,  ["name"])
     if(type(valid_check) == str):
@@ -207,17 +207,23 @@ def get_meal():
         err["error"] = f"Error getting meal from database: {error}"
         return make_response(jsonify(err), 400)
     
-app.post('/api/food')
-def new_food():
-    valid_check = check_endpoint_info(request.json,  ["name", "food"])
+app.post('/api/meals')
+def new_meal():
+    valid_check = check_endpoint_info(request.headers,  ["token"])
     if(type(valid_check) == str):
         return valid_check
     
+    valid_check = check_endpoint_info(request.json,  ["name", "food", "amount"])
+    if(type(valid_check) == str):
+        return valid_check
+    
+    token = request.headers["token"]
     name = request.json["name"]
     food = request.json["food"]
+    amount = request.json["amount"]
 
     try:
-        result = run_statement("CALL new_meal(?,?)", [name, food])
+        result = run_statement("CALL new_meal(?,?,?,?)", [token, name, food, amount])
         if (result):
             return make_response(result[0], 200)
     except Exception as error:
