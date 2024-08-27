@@ -330,6 +330,7 @@ begin
     DECLARE token_id int;
    	DECLARE i INT DEFAULT 0;
     DECLARE n INT;
+   declare x int;
     DECLARE food_element VARCHAR(255);
    	DECLARE ammount_element VARCHAR(255);
    
@@ -342,14 +343,16 @@ begin
         SELECT 'Invalid token' AS message;
 
     ELSE
-		
+		insert into meal_name (name, user_id) values (meal_name_input, token_id);
+		set x = last_insert_id() ;
 	
 	    SET n = JSON_LENGTH(food_id_array);
-	
+		
 	    WHILE i < n DO
 	        SET food_element = JSON_UNQUOTE(JSON_EXTRACT(food_id_array, CONCAT('$[', i, ']')));
 	       	SET ammount_element = JSON_UNQUOTE(JSON_EXTRACT(amount_array, CONCAT('$[', i, ']')));
-	        INSERT INTO meals (user_id, name, food_id, amount) VALUES (token_id, meal_name_input, food_element, ammount_element);
+	       	
+	        INSERT INTO meals (name_id , food_id, amount) VALUES (x, food_element, ammount_element);
 	        SET i = i + 1;
 	    END WHILE;
 	   
@@ -481,4 +484,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2024-08-26 21:23:03
+-- Dump completed on 2024-08-26 21:28:03
